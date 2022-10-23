@@ -1,10 +1,7 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 import java.nio.ByteBuffer;
 import java.util.zip.Checksum;
-
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.byteBufferArrayPosition;
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.checkBounds;
 
 /**
  * Equivalent to {@link java.util.zip.Adler32}, but uses libdeflate's Adler-32 routines. As a result, performance of
@@ -29,7 +26,7 @@ public class LibdeflateAdler32 implements Checksum {
 
     @Override
     public void update(byte[] b, int off, int len) {
-        checkBounds(b.length, off, len);
+        LibdeflateJavaUtils.checkBounds(b.length, off, len);
         adler32 = adler32Heap(adler32, b, off, len);
     }
 
@@ -38,7 +35,7 @@ public class LibdeflateAdler32 implements Checksum {
         int limit = buffer.limit();
         int remaining = limit - pos;
         if (buffer.hasArray()) {
-            adler32 = adler32Heap(adler32, buffer.array(), byteBufferArrayPosition(buffer), remaining);
+            adler32 = adler32Heap(adler32, buffer.array(), LibdeflateJavaUtils.byteBufferArrayPosition(buffer), remaining);
         } else if (buffer.isDirect()) {
             adler32 = adler32Direct(adler32, buffer, pos, remaining);
         } else {

@@ -5,12 +5,12 @@
 static jfieldID ctxFieldID;
 static jfieldID availInFieldID;
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_initIDs(JNIEnv *env, jclass klass) {
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_initIDs(JNIEnv *env, jclass klass) {
     ctxFieldID = (*env)->GetFieldID(env, klass, "ctx", "J");
     availInFieldID = (*env)->GetFieldID(env, klass, "availInBytes", "J");
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_allocate(JNIEnv *env, jclass klass) {
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_allocate(JNIEnv *env, jclass klass) {
     struct libdeflate_decompressor *decompressor = libdeflate_alloc_decompressor();
     if (decompressor == NULL) {
         // Out of memory!
@@ -20,7 +20,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return (jlong) decompressor;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_free(JNIEnv *env, jclass klass, jlong ctx) {
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_free(JNIEnv *env, jclass klass, jlong ctx) {
     libdeflate_free_decompressor((struct libdeflate_decompressor *) ctx);
 }
 
@@ -87,7 +87,7 @@ jlong performDecompression(
     }
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_decompressBothHeap(
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_decompressBothHeap(
     JNIEnv *env, jobject this,
     jbyteArray in, jint inPos, jint inSize,
     jbyteArray out, jint outPos, jint outSize,
@@ -113,7 +113,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return result;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_decompressBothDirect(
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_decompressBothDirect(
     JNIEnv *env, jobject this,
     jobject in, jint inPos, jint inSize,
     jobject out, jint outPos, jint outSize,
@@ -131,7 +131,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return performDecompression(env, this, inBytes, inPos, inSize, outBytes, outPos, outSize, type, knownSize);
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_decompressOnlySourceDirect(
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_decompressOnlySourceDirect(
     JNIEnv *env, jobject this,
     jobject in, jint inPos, jint inSize,
     jbyteArray out, jint outPos, jint outSize,
@@ -156,7 +156,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return result;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateDecompressor_decompressOnlyDestinationDirect(
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateDecompressor_decompressOnlyDestinationDirect(
     JNIEnv *env, jobject this,
     jbyteArray in, jint inPos, jint inSize,
     jobject out, jint outPos, jint outSize,

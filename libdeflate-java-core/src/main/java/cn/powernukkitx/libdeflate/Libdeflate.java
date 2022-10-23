@@ -1,4 +1,4 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 import java.io.FileInputStream;
 import java.io.IOException;

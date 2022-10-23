@@ -1,10 +1,7 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 import java.nio.ByteBuffer;
 import java.util.zip.Checksum;
-
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.byteBufferArrayPosition;
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.checkBounds;
 
 /**
  * Equivalent to {@link java.util.zip.CRC32}, but uses libdeflate's CRC-32 routines. As a result, performance of this
@@ -29,7 +26,7 @@ public class LibdeflateCRC32 implements Checksum {
 
     @Override
     public void update(byte[] b, int off, int len) {
-        checkBounds(b.length, off, len);
+        LibdeflateJavaUtils.checkBounds(b.length, off, len);
         crc32 = crc32Heap(crc32, b, off, len);
     }
 
@@ -38,7 +35,7 @@ public class LibdeflateCRC32 implements Checksum {
         int limit = buffer.limit();
         int remaining = limit - pos;
         if (buffer.hasArray()) {
-            crc32 = crc32Heap(crc32, buffer.array(), byteBufferArrayPosition(buffer), remaining);
+            crc32 = crc32Heap(crc32, buffer.array(), LibdeflateJavaUtils.byteBufferArrayPosition(buffer), remaining);
         } else if (buffer.isDirect()) {
             crc32 = crc32Direct(crc32, buffer, pos, remaining);
         } else {

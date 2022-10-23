@@ -2,8 +2,8 @@ plugins {
     java
 }
 
-group = "me.steinborn"
-version = "1.0-SNAPSHOT"
+group = "cn.powernukkitx"
+version = "0.0.1-PNX"
 
 allprojects {
     repositories {

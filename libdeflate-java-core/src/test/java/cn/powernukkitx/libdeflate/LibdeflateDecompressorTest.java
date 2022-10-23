@@ -1,4 +1,4 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;

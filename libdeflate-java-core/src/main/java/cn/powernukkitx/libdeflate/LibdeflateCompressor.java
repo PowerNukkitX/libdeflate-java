@@ -1,11 +1,8 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
-
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.byteBufferArrayPosition;
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.checkBounds;
 
 /**
  * Represents a {@code libdeflate} compressor. This class contains compression methods for byte arrays, NIO ByteBuffers,
@@ -85,8 +82,8 @@ public class LibdeflateCompressor implements Closeable, AutoCloseable {
      */
     public int compress(byte[] in, int inOff, int inLen, byte[] out, int outOff, int outLen, CompressionType type) {
         ensureNotClosed();
-        checkBounds(in.length, inOff, inLen);
-        checkBounds(out.length, outOff, outLen);
+        LibdeflateJavaUtils.checkBounds(in.length, inOff, inLen);
+        LibdeflateJavaUtils.checkBounds(out.length, outOff, outLen);
         return (int) compressBothHeap(ctx, in, inOff, inLen, out, outOff, outLen, type.getNativeType());
     }
 
@@ -114,15 +111,15 @@ public class LibdeflateCompressor implements Closeable, AutoCloseable {
                         out.remaining(), nativeType);
             } else {
                 result = compressOnlySourceDirect(ctx, in, in.position(), inAvail, out.array(),
-                        byteBufferArrayPosition(out), out.remaining(), nativeType);
+                        LibdeflateJavaUtils.byteBufferArrayPosition(out), out.remaining(), nativeType);
             }
         } else {
-            int inPos = byteBufferArrayPosition(in);
+            int inPos = LibdeflateJavaUtils.byteBufferArrayPosition(in);
             if (out.isDirect()) {
                 result = compressOnlyDestinationDirect(ctx, in.array(), inPos, inAvail, out, out.position(),
                         out.remaining(), nativeType);
             } else {
-                result = compressBothHeap(ctx, in.array(), inPos, inAvail, out.array(), byteBufferArrayPosition(out), out.remaining(), nativeType);
+                result = compressBothHeap(ctx, in.array(), inPos, inAvail, out.array(), LibdeflateJavaUtils.byteBufferArrayPosition(out), out.remaining(), nativeType);
             }
         }
 

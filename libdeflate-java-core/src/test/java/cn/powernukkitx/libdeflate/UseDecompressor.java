@@ -1,4 +1,4 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 public enum UseDecompressor {
     JAVA,

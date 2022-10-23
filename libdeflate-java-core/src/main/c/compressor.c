@@ -2,7 +2,7 @@
 #include "./jni_util.h"
 #include "./libdeflate/libdeflate.h"
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_allocate(JNIEnv *env, jclass klass, jint level) {
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_allocate(JNIEnv *env, jclass klass, jint level) {
     struct libdeflate_compressor *compressor = libdeflate_alloc_compressor(level);
     if (compressor == NULL) {
         // Out of memory!
@@ -12,7 +12,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return (jlong) compressor;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_free(JNIEnv *env, jclass klass, jlong ctx) {
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_free(JNIEnv *env, jclass klass, jlong ctx) {
     libdeflate_free_compressor((struct libdeflate_compressor *) ctx);
 }
 
@@ -37,7 +37,7 @@ jlong performCompression(jlong ctx, jbyte* inBytes, jint inPos, jint inSize, jby
     return (jlong) result;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_compressBothHeap
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_compressBothHeap
     (JNIEnv *env, jclass klass, jlong ctx, jbyteArray in, jint inPos, jint inSize, jbyteArray out, jint outPos, jint outSize, jint type) {
     jbyte *inBytes = (*env)->GetPrimitiveArrayCritical(env, in, 0);
     jbyte *outBytes = (*env)->GetPrimitiveArrayCritical(env, out, 0);
@@ -58,7 +58,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return (jint) result;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_compressBothDirect
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_compressBothDirect
     (JNIEnv *env, jclass klass, jlong ctx, jobject in, jint inPos, jint inSize, jobject out, jint outPos, jint outSize, jint type) {
     jbyte *inBytes = (*env)->GetDirectBufferAddress(env, in);
     jbyte *outBytes = (*env)->GetDirectBufferAddress(env, out);
@@ -71,7 +71,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return performCompression(ctx, inBytes, inPos, inSize, outBytes, outPos, outSize, type);
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_compressOnlySourceDirect
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_compressOnlySourceDirect
   (JNIEnv *env, jclass klass, jlong ctx, jobject in, jint inPos, jint inSize, jbyteArray out, jint outPos, jint outSize, jint type) {
     jbyte *inBytes = (*env)->GetDirectBufferAddress(env, in);
     if (inBytes == NULL) {
@@ -91,7 +91,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return result;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_compressOnlyDestinationDirect
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_compressOnlyDestinationDirect
   (JNIEnv *env, jclass klass, jlong ctx, jbyteArray in, jint inPos, jint inSize, jobject out, jint outPos, jint outSize, jint type) {
     jbyte *outBytes = (*env)->GetDirectBufferAddress(env, out);
     if (outBytes == NULL) {
@@ -110,7 +110,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_Libde
     return result;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_me_steinborn_libdeflate_LibdeflateCompressor_getCompressBound(JNIEnv *env, jclass klass, jlong ctx, jlong length, jint type) {
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCompressor_getCompressBound(JNIEnv *env, jclass klass, jlong ctx, jlong length, jint type) {
     struct libdeflate_compressor *compressor = (struct libdeflate_compressor *) ctx;
     size_t result = 0;
     switch (type) {

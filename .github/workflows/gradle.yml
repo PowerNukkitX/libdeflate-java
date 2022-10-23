@@ -25,6 +25,7 @@ jobs:
           arguments: build
         env:
           CC: gcc
+          ci: true
       - uses: actions/upload-artifact@v3
         with:
           name: Linux-amd64
@@ -34,7 +35,7 @@ jobs:
         with:
           name: Jar
           path: |
-            ./build/libs/*.jar
+            ./libdeflate-java-core/build/libs/libdeflate-java-core-*.jar
   ubuntu-aarch64:
     runs-on: aarch64
     steps:

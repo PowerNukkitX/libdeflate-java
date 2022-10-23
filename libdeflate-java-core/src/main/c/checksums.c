@@ -1,7 +1,7 @@
 #include "./jni_util.h"
 #include "./libdeflate/libdeflate.h"
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_LibdeflateCRC32_crc32Heap
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCRC32_crc32Heap
   (JNIEnv *env, jclass klass, jlong crc32, jbyteArray array, jint off, jint len)
 {
     jbyte *arrayBytes = (*env)->GetPrimitiveArrayCritical(env, array, 0);
@@ -12,7 +12,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_Libdef
     return crc32;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_LibdeflateCRC32_crc32Direct
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateCRC32_crc32Direct
   (JNIEnv *env, jclass klass, jlong crc32, jobject buf, jint off, jint len)
 {
     jbyte *bufBytes = (*env)->GetDirectBufferAddress(env, buf);
@@ -25,7 +25,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_Libdef
     return (jint) libdeflate_crc32((uint32_t) crc32, (void*) (bufBytes + off), len);
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_LibdeflateAdler32_adler32Heap
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateAdler32_adler32Heap
   (JNIEnv *env, jclass klass, jlong adler32, jbyteArray array, jint off, jint len)
 {
     jbyte *arrayBytes = (*env)->GetPrimitiveArrayCritical(env, array, 0);
@@ -36,7 +36,7 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_Libdef
     return adler32;
 }
 
-LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_me_steinborn_libdeflate_LibdeflateAdler32_adler32Direct
+LIBDEFLATEJAVA_PUBLIC JNIEXPORT jint JNICALL Java_cn_powernukkitx_libdeflate_LibdeflateAdler32_adler32Direct
   (JNIEnv *env, jclass klass, jlong adler32, jobject buf, jint off, jint len)
 {
     jbyte *bufBytes = (*env)->GetDirectBufferAddress(env, buf);

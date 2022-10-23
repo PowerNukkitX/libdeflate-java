@@ -1,11 +1,8 @@
-package me.steinborn.libdeflate;
+package cn.powernukkitx.libdeflate;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
-
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.byteBufferArrayPosition;
-import static me.steinborn.libdeflate.LibdeflateJavaUtils.checkBounds;
 
 /**
  * Represents a {@code libdeflate} decompressor. This class contains compression methods for byte arrays and NIO
@@ -102,8 +99,8 @@ public class LibdeflateDecompressor implements Closeable, AutoCloseable {
     public void decompress(byte[] in, int inOff, int inLen, byte[] out, int outOff, int outLen, CompressionType type, int uncompressedSize) throws DataFormatException {
         ensureNotClosed();
 
-        checkBounds(in.length, inOff, inLen);
-        checkBounds(out.length, outOff, outLen);
+        LibdeflateJavaUtils.checkBounds(in.length, inOff, inLen);
+        LibdeflateJavaUtils.checkBounds(out.length, outOff, outLen);
         decompressBothHeap(in, inOff, inLen, out, outOff, outLen, type.getNativeType(), uncompressedSize);
     }
 
@@ -145,8 +142,8 @@ public class LibdeflateDecompressor implements Closeable, AutoCloseable {
     public long decompressUnknownSize(byte[] in, int inOff, int inLen, byte[] out, int outOff, int outLen, CompressionType type) throws DataFormatException {
         ensureNotClosed();
 
-        checkBounds(in.length, inOff, inLen);
-        checkBounds(out.length, outOff, outLen);
+        LibdeflateJavaUtils.checkBounds(in.length, inOff, inLen);
+        LibdeflateJavaUtils.checkBounds(out.length, outOff, outLen);
         return decompressBothHeap(in, inOff, inLen, out, outOff, outLen, type.getNativeType(), -1);
     }
 
@@ -172,15 +169,15 @@ public class LibdeflateDecompressor implements Closeable, AutoCloseable {
                         outAvail, nativeType, uncompressedSize);
             } else {
                 outRealSize = decompressOnlySourceDirect(in, in.position(), inAvail, out.array(),
-                        byteBufferArrayPosition(out), outAvail, nativeType, uncompressedSize);
+                        LibdeflateJavaUtils.byteBufferArrayPosition(out), outAvail, nativeType, uncompressedSize);
             }
         } else {
-            int inPos = byteBufferArrayPosition(in);
+            int inPos = LibdeflateJavaUtils.byteBufferArrayPosition(in);
             if (out.isDirect()) {
                 outRealSize = decompressOnlyDestinationDirect(in.array(), inPos, inAvail, out, out.position(),
                         outAvail, nativeType, uncompressedSize);
             } else {
-                outRealSize = decompressBothHeap(in.array(), inPos, inAvail, out.array(), byteBufferArrayPosition(out),
+                outRealSize = decompressBothHeap(in.array(), inPos, inAvail, out.array(), LibdeflateJavaUtils.byteBufferArrayPosition(out),
                         outAvail, nativeType, uncompressedSize);
             }
         }

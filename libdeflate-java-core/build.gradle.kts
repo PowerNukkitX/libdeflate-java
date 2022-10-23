@@ -103,7 +103,7 @@ task("compileNatives") {
 }
 
 sourceSets {
-    if (!project.hasProperty("only_interface")) {
+    if (!project.hasProperty("only_interface") && System.getenv("ci") != null) {
         main {
             resources.srcDir(Paths.get(project.rootDir.toString(), "tmp", "compiled"))
         }
@@ -111,9 +111,7 @@ sourceSets {
 }
 
 tasks.jar {
-    val osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
-    val osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH)
-    archiveClassifier.set("${osName}-${osArch}")
+    archiveClassifier.set("${project.version}")
 }
 
 tasks.named<ProcessResources>("processResources") {
