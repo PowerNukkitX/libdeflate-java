@@ -33,10 +33,10 @@ jobs:
               ./tmp/compiled/linux/amd64/libdeflate_jni.so
       - uses: actions/upload-artifact@v3
         with:
-          name: Jar
+          name: Interface jar
           path: |
             ./libdeflate-java-core/build/libs/libdeflate-java-core-*.jar
-  ubuntu-aarch64:
+  linux-aarch64:
     runs-on: aarch64
     steps:
       - uses: actions/checkout@v2
@@ -65,6 +65,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
       - name: Build with Gradle
         uses: eskatos/gradle-command-action@v1
         with:
@@ -73,6 +77,39 @@ jobs:
           MSVC: true
       - uses: actions/upload-artifact@v3
         with:
-          name: Windows-msvc-amd64
+          name: Windows-amd64
           path: |
             ./tmp/compiled/windows/amd64/libdeflate_jni.dll
+  build-full-jar:
+    needs: [linux-amd64, linux-aarch64, windows-amd64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Linux-amd64
+        uses: actions/download-artifact@v3
+        with:
+          name: Linux-amd64
+          path: ./linux/amd64
+      - name: Download Linux-aarch64
+        uses: actions/download-artifact@v3
+        with:
+          name: Linux-aarch64
+          path: ./linux/aarch64
+      - name: Download Windows-amd64
+        uses: actions/download-artifact@v3
+        with:
+          name: Windows-amd64
+          path: ./windows/amd64
+      - name: Download Interface jar
+        uses: actions/download-artifact@v3
+        with:
+          name: Interface jar
+          path: ./
+      - name: Build full jar
+        run: |
+          jar uf libdeflate-java-core-0.0.1-PNX.jar ./linux ./windows
+          mv libdeflate-java-core-0.0.1-PNX.jar libdeflate-java-0.0.1-PNX.jar
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Full jar
+          path: |
+            ./libdeflate-java-0.0.1-PNX.jar

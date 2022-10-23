@@ -7,6 +7,8 @@ plugins {
     `java-library`
 }
 
+version = "0.0.1-PNX"
+
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.0\"")
@@ -108,10 +110,6 @@ sourceSets {
             resources.srcDir(Paths.get(project.rootDir.toString(), "tmp", "compiled"))
         }
     }
-}
-
-tasks.jar {
-    archiveClassifier.set("${project.version}")
 }
 
 tasks.named<ProcessResources>("processResources") {
