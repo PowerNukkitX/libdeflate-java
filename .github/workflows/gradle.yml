@@ -105,6 +105,6 @@ jobs:
           arguments: build
       - uses: actions/upload-artifact@v3
         with:
-          name: Windows-mingw-amd64
+          name: Windows-mingw-x86_64
           path: |
             ./**/libdeflate_jni.dll    
