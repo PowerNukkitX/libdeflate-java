@@ -30,6 +30,11 @@ jobs:
           arguments: build
         env:
           CC: ${{matrix.compiler}}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux-${{matrix.compiler}}-amd64
+          path: |
+              ./**/libdeflate_jni.so
   ubuntu-gcc-arm64:
     # Well, we've come to the end of the line. I've tried to get this working on native hardware and I've given up, past
     # running a worker on AWS Graviton or buying a Raspberry Pi. Travis CI has a lot of issues. If anyone would LIKE to
@@ -68,6 +73,11 @@ jobs:
           arguments: build
         env:
           MSVC: true
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows-msvc-amd64
+          path: |
+            ./**/libdeflate_jni.dll
   windows-mingw:
     runs-on: windows-latest
     defaults:
@@ -93,3 +103,8 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows-mingw-amd64
+          path: |
+            ./**/libdeflate_jni.dll    
