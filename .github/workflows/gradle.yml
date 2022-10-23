@@ -62,7 +62,7 @@ jobs:
       - name: Build with Gradle
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: build
+          arguments: compileNatives
         env:
           MSVC: true
       - uses: actions/upload-artifact@v3
