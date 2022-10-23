@@ -30,6 +30,11 @@ jobs:
           name: Linux-amd64
           path: |
               ./tmp/compiled/linux/amd64/libdeflate_jni.so
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Jar
+          path: |
+            ./build/libs/*.jar
   ubuntu-aarch64:
     runs-on: aarch64
     steps:
@@ -48,7 +53,7 @@ jobs:
         with:
           name: Linux-aarch64
           path: |
-            ./tmp/compiled/linux/*/libdeflate_jni.so
+            ./tmp/compiled/linux/aarch64/libdeflate_jni.so
   windows-amd64:
     runs-on: windows-latest
     steps:
