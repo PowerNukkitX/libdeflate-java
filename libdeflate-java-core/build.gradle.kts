@@ -7,7 +7,7 @@ plugins {
     `java-library`
 }
 
-version = "0.0.1-PNX"
+version = "0.0.2-PNX"
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")

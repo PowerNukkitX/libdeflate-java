@@ -17,9 +17,9 @@ public class LibdeflateDecompressor implements Closeable, AutoCloseable {
         initIDs();
     }
 
-    private final long ctx;
+    protected final long ctx;
     private long availInBytes = -1;
-    private boolean closed = false;
+    protected boolean closed = false;
 
     /**
      * Creates a new libdeflate decompressor.
@@ -247,9 +247,9 @@ public class LibdeflateDecompressor implements Closeable, AutoCloseable {
     }
 
     /* Native function declarations. */
-    private static native void initIDs();
-    private static native long allocate();
-    private static native void free(long ctx);
+    protected static native void initIDs();
+    protected static native long allocate();
+    protected static native void free(long ctx);
     private native long decompressBothHeap(byte[] in, int inPos, int inSize, byte[] out, int outPos, int outSize, int type, int knownSize) throws DataFormatException;
     private native long decompressOnlyDestinationDirect(byte[] in, int inPos, int inSize, ByteBuffer out, int outPos, int outSize, int type, int knownSize) throws DataFormatException;
     private native long decompressOnlySourceDirect(ByteBuffer in, int inPos, int inSize, byte[] out, int outPos, int outSize, int type, int knownSize) throws DataFormatException;

@@ -20,8 +20,8 @@ public class LibdeflateCompressor implements Closeable, AutoCloseable {
         Libdeflate.ensureAvailable();
     }
 
-    final long ctx;
-    private boolean closed = false;
+    protected final long ctx;
+    protected boolean closed = false;
 
     /**
      * Creates a new compressor with the default compression level.
@@ -177,8 +177,8 @@ public class LibdeflateCompressor implements Closeable, AutoCloseable {
     }
 
     /* Native function declarations. */
-    private static native long allocate(int level);
-    private static native void free(long ctx);
+    protected static native long allocate(int level);
+    protected static native void free(long ctx);
     static native long compressBothHeap(long ctx, byte[] in, int inPos, int inSize, byte[] out, int outPos, int outSize, int type);
     static native long compressOnlyDestinationDirect(long ctx, byte[] in, int inPos, int inSize, ByteBuffer out, int outPos, int outSize, int type);
     static native long compressOnlySourceDirect(long ctx, ByteBuffer in, int inPos, int inSize, byte[] out, int outPos, int outSize, int type);
