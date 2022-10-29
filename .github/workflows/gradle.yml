@@ -106,10 +106,10 @@ jobs:
           path: ./
       - name: Build full jar
         run: |
-          jar uf libdeflate-java-core-0.0.1-PNX.jar ./linux ./windows
-          mv libdeflate-java-core-0.0.1-PNX.jar libdeflate-java-0.0.1-PNX.jar
+          jar uf libdeflate-java-core-0.0.2-PNX.jar ./linux ./windows
+          mv libdeflate-java-core-0.0.2-PNX.jar libdeflate-java-0.0.2-PNX.jar
       - uses: actions/upload-artifact@v3
         with:
           name: Full jar
           path: |
-            ./libdeflate-java-0.0.1-PNX.jar
+            ./libdeflate-java-0.0.2-PNX.jar
