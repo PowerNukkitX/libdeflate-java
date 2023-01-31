@@ -1,0 +1,10 @@
+jdk:
+  - openjdk17
+before_install:
+  - sdk install java 17.0.2-open
+  - ./download-release.sh
+install:
+  - FILE="-Dfile=target/libdeflate-java-0.0.2-PNX.jar"
+  - mvn install:install-file $FILE -DgroupId=com.github.user -DartifactId=repo -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true
+env:
+  MYVAR: "custom environment variable"
