@@ -5,6 +5,4 @@ before_install:
   - ./download-release.sh
 install:
   - FILE="-Dfile=target/libdeflate-java-0.0.2-PNX.jar"
-  - mvn install:install-file $FILE -DgroupId=com.github.user -DartifactId=repo -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true
-env:
-  MYVAR: "custom environment variable"
+  - mvn install:install-file $FILE -DgroupId=cn.powernukkitx -DartifactId=libdeflate-java -Dversion=0.0.2-PNX -Dpackaging=jar -DgeneratePom=true
