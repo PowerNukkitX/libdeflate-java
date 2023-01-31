@@ -15,9 +15,11 @@ if [ ! -f "libdeflate-java-0.0.2-PNX" ]; then
 
     if [ -z "$HTTP_PROXY" ]; then
         echo "No proxy detected. You can set proxy via HTTP_PROXY environment variable."
-        curl -Ls -o "libdeflate-java-0.0.2-PNX" "$download_url"
+        curl -# -Ls -o "libdeflate-java-0.0.2-PNX" "$download_url"
     else
         echo "Using proxy $HTTP_PROXY"
-        curl -Ls -x "$HTTP_PROXY" -o "libdeflate-java-0.0.2-PNX" "$download_url"
+        curl -# -Ls -x "$HTTP_PROXY" -o "libdeflate-java-0.0.2-PNX" "$download_url"
     fi
+
+    ls
 fi
