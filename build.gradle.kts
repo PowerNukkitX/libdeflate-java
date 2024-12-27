@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cn.powernukkitx"
-version = "0.0.2-PNX"
+version = "0.0.3-PNX"
 
 allprojects {
     repositories {
