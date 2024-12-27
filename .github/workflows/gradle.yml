@@ -36,7 +36,7 @@ jobs:
           name: Interface jar
           path: |
             ./libdeflate-java-core/build/libs/libdeflate-java-core-*.jar
-  linux-aarch64:
+  macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -52,9 +52,9 @@ jobs:
           CC: gcc
       - uses: actions/upload-artifact@v3
         with:
-          name: Linux-aarch64
+          name: macos
           path: |
-            ./tmp/compiled/linux/aarch64/libdeflate_jni.so
+            ./tmp/compiled/macos/libdeflate_jni.so
   windows-amd64:
     runs-on: windows-latest
     steps:
@@ -81,7 +81,7 @@ jobs:
           path: |
             ./tmp/compiled/windows/amd64/libdeflate_jni.dll
   build-full-jar:
-    needs: [linux-amd64, linux-aarch64, windows-amd64]
+    needs: [linux-amd64, macos, windows-amd64]
     runs-on: ubuntu-latest
     steps:
       - name: Download Linux-amd64
@@ -89,11 +89,11 @@ jobs:
         with:
           name: Linux-amd64
           path: ./linux/amd64
-      - name: Download Linux-aarch64
+      - name: Download macos
         uses: actions/download-artifact@v3
         with:
-          name: Linux-aarch64
-          path: ./linux/aarch64
+          name: macos
+          path: ./macos
       - name: Download Windows-amd64
         uses: actions/download-artifact@v3
         with:
