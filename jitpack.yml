@@ -3,4 +3,4 @@ jdk:
 before_install:
   - bash ./download-release.sh
 install:
-  - mvn install:install-file -Dfile=target/libdeflate-java-0.0.2-PNX.jar -DgroupId=cn.powernukkitx -DartifactId=libdeflate-java -Dversion=0.0.2-PNX -Dpackaging=jar -DgeneratePom=true
+  - mvn install:install-file -Dfile=target/libdeflate-java-0.0.3-PNX.jar -DgroupId=cn.powernukkitx -DartifactId=libdeflate-java -Dversion=0.0.3-PNX -Dpackaging=jar -DgeneratePom=true
