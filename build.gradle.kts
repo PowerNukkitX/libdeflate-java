@@ -20,11 +20,12 @@ java {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            from(components["java"])
+            // Publish the submodule that has Java classes
+            from(project(":libdeflate-java-core").components["java"])
 
             groupId = "org.powernukkitx"
             artifactId = "libdeflate-java"
-            version = "0.0.3.PNX-SNAPSHOT"
+            version = project.version.toString()
         }
     }
 
