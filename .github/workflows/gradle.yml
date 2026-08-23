@@ -2,41 +2,11 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ master, feat/leveldb-performance ]
+    branches: [ master, 0.0.3.PNX-3.1.0 ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  linux-amd64:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - run: chmod +x gradlew
-
-      - name: Build natives + publish
-        run: ./gradlew publish
-        env:
-          CC: gcc
-          ci: true
-          PNX_REPO_USERNAME: ${{ secrets.PNX_REPO_USERNAME }}
-          PNX_REPO_PASSWORD: ${{ secrets.PNX_REPO_PASSWORD }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux-amd64
-          path: ./tmp/compiled/linux/amd64/libdeflate_jni.so
-
-
   windows-amd64:
     runs-on: windows-latest
 
@@ -65,3 +35,39 @@ jobs:
         with:
           name: Windows-amd64
           path: ./tmp/compiled/windows/amd64/libdeflate_jni.dll
+
+
+  publish:
+    needs: windows-amd64
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Windows-amd64
+          path: ./tmp/compiled/windows/amd64
+
+      - run: chmod +x gradlew
+
+      - name: Build Linux natives + publish
+        run: ./gradlew publish
+        env:
+          CC: gcc
+          ci: true
+          PNX_REPO_USERNAME: ${{ secrets.PNX_REPO_USERNAME }}
+          PNX_REPO_PASSWORD: ${{ secrets.PNX_REPO_PASSWORD }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux-amd64
+          path: ./tmp/compiled/linux/amd64/libdeflate_jni.so
