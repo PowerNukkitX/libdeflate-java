@@ -1,4 +1,4 @@
-package cn.powernukkitx.libdeflate;
+package org.powernukkitx.libdeflate;
 
 import java.util.EnumMap;
 import java.util.Map;

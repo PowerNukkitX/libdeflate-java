@@ -1,4 +1,4 @@
-package cn.powernukkitx.libdeflate;
+package org.powernukkitx.libdeflate;
 
 import java.io.FileInputStream;
 import java.io.IOException;

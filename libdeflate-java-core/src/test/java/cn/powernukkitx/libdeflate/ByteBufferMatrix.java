@@ -1,4 +1,4 @@
-package cn.powernukkitx.libdeflate;
+package org.powernukkitx.libdeflate;
 
 import java.nio.ByteBuffer;
 import java.util.function.Function;
