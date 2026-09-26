@@ -44,6 +44,41 @@ jobs:
           path: ./tmp/compiled/linux/${{ matrix.arch }}/libdeflate_jni.so
           if-no-files-found: error
 
+  macos-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: macos-15-intel
+          - arch: aarch64
+            runner: macos-15
+
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - run: chmod +x gradlew
+
+      - name: Build native library
+        run: ./gradlew :libdeflate-java-core:compileNatives
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macOS-${{ matrix.arch }}
+          path: ./tmp/compiled/darwin/${{ matrix.arch }}/libdeflate_jni.dylib
+          if-no-files-found: error
+
   windows-amd64:
     runs-on: windows-latest
 
@@ -77,6 +112,7 @@ jobs:
   publish:
     needs:
       - linux-native
+      - macos-native
       - windows-amd64
     runs-on: ubuntu-22.04
 
@@ -100,6 +136,16 @@ jobs:
         with:
           name: Linux-aarch64
           path: ./tmp/compiled/linux/aarch64
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: macOS-x86_64
+          path: ./tmp/compiled/darwin/x86_64
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: macOS-aarch64
+          path: ./tmp/compiled/darwin/aarch64
 
       - uses: actions/download-artifact@v4
         with:
