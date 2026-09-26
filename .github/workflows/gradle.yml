@@ -97,7 +97,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Build musl native library
+      - name: Build and test musl native library
         run: |
           docker run --rm --user root \
             -v "$PWD:/workspace" \
@@ -113,7 +113,11 @@ jobs:
                 DYLIB_SUFFIX=so \
                 JNI_PLATFORM=linux \
                 LIB_DIR=/workspace/tmp/compiled/linux-musl/${{ matrix.arch }} \
-                OBJ_DIR=/workspace/tmp/objects/linux-musl/${{ matrix.arch }}
+                OBJ_DIR=/workspace/tmp/objects/linux-musl/${{ matrix.arch }} &&
+              cd /workspace &&
+              chmod +x gradlew &&
+              export JAVA_TOOL_OPTIONS="-Xcheck:jni -Dlibdeflate_jni_path=/workspace/tmp/compiled/linux-musl/${{ matrix.arch }}/libdeflate_jni.so" &&
+              ./gradlew :libdeflate-java-core:test -x :libdeflate-java-core:compileNatives
             '
 
       - uses: actions/upload-artifact@v4

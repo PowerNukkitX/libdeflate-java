@@ -43,6 +43,9 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_L
     jbyte *outBytes = (*env)->GetPrimitiveArrayCritical(env, out, 0);
 
     if (inBytes == NULL || outBytes == NULL) {
+        if (outBytes != NULL) {
+            (*env)->ReleasePrimitiveArrayCritical(env, out, outBytes, 0);
+        }
         if (inBytes != NULL) {
             (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
         }
@@ -51,11 +54,9 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_L
 
     jlong result = performCompression(ctx, inBytes, inPos, inSize, outBytes, outPos, outSize, type);
 
-    // We immediately commit the changes to the output array, but the input array is never touched, so use JNI_ABORT
-    // to improve performance a bit.
-    (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
     (*env)->ReleasePrimitiveArrayCritical(env, out, outBytes, 0);
-    return (jint) result;
+    (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
+    return result;
 }
 
 LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_LibdeflateCompressor_compressBothDirect

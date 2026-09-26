@@ -24,63 +24,59 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT void JNICALL Java_org_powernukkitx_libdeflate_Li
     libdeflate_free_decompressor((struct libdeflate_decompressor *) ctx);
 }
 
-jlong performDecompression(
-    JNIEnv *env, jobject this, /* JNI fluff */
-    jbyte* inBytes, jint inPos, jint inSize, /* Input buffer */
-    jbyte* outBytes, jint outPos, jint outSize, /* Output buffer */
-    jint type, /* Compression wrapper */
-    jint knownSize)
+static enum libdeflate_result performDecompression(
+    jlong ctx,
+    jbyte* inBytes, jint inPos, jint inSize,
+    jbyte* outBytes, jint outPos, jint outSize,
+    jint type, jint knownSize,
+    size_t* actualInBytes, size_t* actualOutBytes)
 {
-    // We assume that any input validation has already been done before the method has been called.
-    jlong ctx = (*env)->GetLongField(env, this, ctxFieldID);
     struct libdeflate_decompressor *decompressor = (struct libdeflate_decompressor *) ctx;
-
     void *inStart = (void *) (inBytes + inPos);
     void *outStart = (void *) (outBytes + outPos);
-
     size_t availableOutBytes = knownSize == -1 ? outSize : knownSize;
-    size_t actualInBytes = 0;
-    size_t actualOutBytes = 0; // in case of unknown size
 
-    enum libdeflate_result result = 0;
+    *actualInBytes = 0;
+    *actualOutBytes = 0;
+
     switch (type) {
         case COMPRESSION_TYPE_DEFLATE:
-            result = libdeflate_deflate_decompress_ex(decompressor, inStart, inSize, outStart, availableOutBytes,
-                &actualInBytes, knownSize == -1 ? &actualOutBytes : NULL);
-            break;
+            return libdeflate_deflate_decompress_ex(
+                decompressor, inStart, inSize, outStart, availableOutBytes,
+                actualInBytes, knownSize == -1 ? actualOutBytes : NULL);
         case COMPRESSION_TYPE_ZLIB:
-            result = libdeflate_zlib_decompress_ex(decompressor, inStart, inSize, outStart, availableOutBytes,
-                &actualInBytes, knownSize == -1 ? &actualOutBytes : NULL);
-            break;
+            return libdeflate_zlib_decompress_ex(
+                decompressor, inStart, inSize, outStart, availableOutBytes,
+                actualInBytes, knownSize == -1 ? actualOutBytes : NULL);
         case COMPRESSION_TYPE_GZIP:
-            result = libdeflate_gzip_decompress_ex(decompressor, inStart, inSize, outStart, availableOutBytes,
-                &actualInBytes, knownSize == -1 ? &actualOutBytes : NULL);
-            break;
+            return libdeflate_gzip_decompress_ex(
+                decompressor, inStart, inSize, outStart, availableOutBytes,
+                actualInBytes, knownSize == -1 ? actualOutBytes : NULL);
+        default:
+            return LIBDEFLATE_BAD_DATA;
     }
+}
 
+static jlong finishDecompression(
+    JNIEnv *env, jobject self, enum libdeflate_result result,
+    size_t actualInBytes, size_t actualOutBytes, jint knownSize)
+{
     switch (result) {
         case LIBDEFLATE_SUCCESS:
-            (*env)->SetLongField(env, this, availInFieldID, actualInBytes);
-            return actualOutBytes;
+            (*env)->SetLongField(env, self, availInFieldID, (jlong) actualInBytes);
+            return (jlong) actualOutBytes;
         case LIBDEFLATE_BAD_DATA:
             throwException(env, "java/util/zip/DataFormatException", "input data is corrupted");
             return 0;
         case LIBDEFLATE_SHORT_OUTPUT:
-            // This case only fires when the exact uncompressed size was specified by the user
             throwException(env, "java/util/zip/DataFormatException", "decompressed data is shorter than expected size");
             return 0;
         case LIBDEFLATE_INSUFFICIENT_SPACE:
-            // There's two ways we could handle this:
-            // - Throw an exception.
-            // - Return a sentinel value indicating that the output buffer was not big enough.
-            // It's probably better to split the difference. This should be an exception if the uncompressed size was known
-            // but if not, it needs to be indicated to the user as a sentinel value.
             if (knownSize == -1) {
                 return -1;
-            } else {
-                throwException(env, "java/util/zip/DataFormatException", "decompressed data would be too large for given output buffer");
-                return 0;
             }
+            throwException(env, "java/util/zip/DataFormatException", "decompressed data would be too large for given output buffer");
+            return 0;
         default:
             throwException(env, "java/util/zip/DataFormatException", "unknown libdeflate error");
             return 0;
@@ -88,38 +84,46 @@ jlong performDecompression(
 }
 
 LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_LibdeflateDecompressor_decompressBothHeap(
-    JNIEnv *env, jobject this,
+    JNIEnv *env, jobject self,
     jbyteArray in, jint inPos, jint inSize,
     jbyteArray out, jint outPos, jint outSize,
     jint type,
     jint knownSize)
 {
+    jlong ctx = (*env)->GetLongField(env, self, ctxFieldID);
     jbyte *inBytes = (*env)->GetPrimitiveArrayCritical(env, in, 0);
     jbyte *outBytes = (*env)->GetPrimitiveArrayCritical(env, out, 0);
 
     if (inBytes == NULL || outBytes == NULL) {
+        if (outBytes != NULL) {
+            (*env)->ReleasePrimitiveArrayCritical(env, out, outBytes, 0);
+        }
         if (inBytes != NULL) {
             (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
         }
         return -1;
     }
 
-    jlong result = performDecompression(env, this, inBytes, inPos, inSize, outBytes, outPos, outSize, type, knownSize);
+    size_t actualInBytes;
+    size_t actualOutBytes;
+    enum libdeflate_result result = performDecompression(
+        ctx, inBytes, inPos, inSize, outBytes, outPos, outSize,
+        type, knownSize, &actualInBytes, &actualOutBytes);
 
-    // We immediately commit the changes to the output array, but the input array is never touched, so use JNI_ABORT
-    // to improve performance a bit.
-    (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
     (*env)->ReleasePrimitiveArrayCritical(env, out, outBytes, 0);
-    return result;
+    (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
+
+    return finishDecompression(env, self, result, actualInBytes, actualOutBytes, knownSize);
 }
 
 LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_LibdeflateDecompressor_decompressBothDirect(
-    JNIEnv *env, jobject this,
+    JNIEnv *env, jobject self,
     jobject in, jint inPos, jint inSize,
     jobject out, jint outPos, jint outSize,
     jint type,
     jint knownSize)
 {
+    jlong ctx = (*env)->GetLongField(env, self, ctxFieldID);
     jbyte *inBytes = (*env)->GetDirectBufferAddress(env, in);
     jbyte *outBytes = (*env)->GetDirectBufferAddress(env, out);
 
@@ -128,16 +132,23 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_L
         return -1;
     }
 
-    return performDecompression(env, this, inBytes, inPos, inSize, outBytes, outPos, outSize, type, knownSize);
+    size_t actualInBytes;
+    size_t actualOutBytes;
+    enum libdeflate_result result = performDecompression(
+        ctx, inBytes, inPos, inSize, outBytes, outPos, outSize,
+        type, knownSize, &actualInBytes, &actualOutBytes);
+
+    return finishDecompression(env, self, result, actualInBytes, actualOutBytes, knownSize);
 }
 
 LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_LibdeflateDecompressor_decompressOnlySourceDirect(
-    JNIEnv *env, jobject this,
+    JNIEnv *env, jobject self,
     jobject in, jint inPos, jint inSize,
     jbyteArray out, jint outPos, jint outSize,
     jint type,
     jint knownSize)
 {
+    jlong ctx = (*env)->GetLongField(env, self, ctxFieldID);
     jbyte *inBytes = (*env)->GetDirectBufferAddress(env, in);
     if (inBytes == NULL) {
         throwException(env, "java/lang/IllegalArgumentException", "unable to obtain direct access to input buffer");
@@ -146,23 +157,28 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_L
 
     jbyte *outBytes = (*env)->GetPrimitiveArrayCritical(env, out, 0);
     if (outBytes == NULL) {
-        // out of memory
         return -1;
     }
 
-    jlong result = performDecompression(env, this, inBytes, inPos, inSize, outBytes, outPos, outSize, type, knownSize);
-    // Commit the output array
+    size_t actualInBytes;
+    size_t actualOutBytes;
+    enum libdeflate_result result = performDecompression(
+        ctx, inBytes, inPos, inSize, outBytes, outPos, outSize,
+        type, knownSize, &actualInBytes, &actualOutBytes);
+
     (*env)->ReleasePrimitiveArrayCritical(env, out, outBytes, 0);
-    return result;
+
+    return finishDecompression(env, self, result, actualInBytes, actualOutBytes, knownSize);
 }
 
 LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_LibdeflateDecompressor_decompressOnlyDestinationDirect(
-    JNIEnv *env, jobject this,
+    JNIEnv *env, jobject self,
     jbyteArray in, jint inPos, jint inSize,
     jobject out, jint outPos, jint outSize,
     jint type,
     jint knownSize)
 {
+    jlong ctx = (*env)->GetLongField(env, self, ctxFieldID);
     jbyte *outBytes = (*env)->GetDirectBufferAddress(env, out);
     if (outBytes == NULL) {
         throwException(env, "java/lang/IllegalArgumentException", "unable to obtain direct access to output buffer");
@@ -171,11 +187,16 @@ LIBDEFLATEJAVA_PUBLIC JNIEXPORT jlong JNICALL Java_org_powernukkitx_libdeflate_L
 
     jbyte *inBytes = (*env)->GetPrimitiveArrayCritical(env, in, 0);
     if (inBytes == NULL) {
-        // out of memory
         return -1;
     }
 
-    jlong result = performDecompression(env, this, inBytes, inPos, inSize, outBytes, outPos, outSize, type, knownSize);
+    size_t actualInBytes;
+    size_t actualOutBytes;
+    enum libdeflate_result result = performDecompression(
+        ctx, inBytes, inPos, inSize, outBytes, outPos, outSize,
+        type, knownSize, &actualInBytes, &actualOutBytes);
+
     (*env)->ReleasePrimitiveArrayCritical(env, in, inBytes, JNI_ABORT);
-    return result;
+
+    return finishDecompression(env, self, result, actualInBytes, actualOutBytes, knownSize);
 }
