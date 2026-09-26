@@ -79,8 +79,63 @@ jobs:
           path: ./tmp/compiled/darwin/${{ matrix.arch }}/libdeflate_jni.dylib
           if-no-files-found: error
 
-  windows-amd64:
-    runs-on: windows-latest
+  linux-musl-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-22.04
+          - arch: aarch64
+            runner: ubuntu-22.04-arm
+
+    name: Linux musl ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build musl native library
+        run: |
+          docker run --rm --user root \
+            -v "$PWD:/workspace" \
+            -w /workspace/libdeflate-java-core \
+            alpine:3.20 \
+            sh -lc '
+              apk add --no-cache build-base openjdk17-jdk &&
+              export JAVA_HOME=/usr/lib/jvm/java-17-openjdk &&
+              export CFLAGS="-O2 -fomit-frame-pointer -Werror -Wall -fPIC -flto -D_POSIX_C_SOURCE=200809L" &&
+              make clean all \
+                CC=gcc \
+                LIB_NAME=libdeflate_jni \
+                DYLIB_SUFFIX=so \
+                JNI_PLATFORM=linux \
+                LIB_DIR=/workspace/tmp/compiled/linux-musl/${{ matrix.arch }} \
+                OBJ_DIR=/workspace/tmp/objects/linux-musl/${{ matrix.arch }}
+            '
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux-musl-${{ matrix.arch }}
+          path: ./tmp/compiled/linux-musl/${{ matrix.arch }}/libdeflate_jni.so
+          if-no-files-found: error
+
+  windows-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: windows-latest
+            msvc_arch: amd64
+          - arch: aarch64
+            runner: windows-11-vs2026-arm
+            msvc_arch: arm64
+
+    name: Windows ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +151,7 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: amd64
+          arch: ${{ matrix.msvc_arch }}
 
       - name: Build natives
         run: ./gradlew compileNatives
@@ -105,15 +160,16 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Windows-amd64
-          path: ./tmp/compiled/windows/amd64/libdeflate_jni.dll
+          name: Windows-${{ matrix.arch }}
+          path: ./tmp/compiled/windows/${{ matrix.arch }}/libdeflate_jni.dll
           if-no-files-found: error
 
   publish:
     needs:
       - linux-native
+      - linux-musl-native
       - macos-native
-      - windows-amd64
+      - windows-native
     runs-on: ubuntu-22.04
 
     steps:
@@ -149,8 +205,23 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
+          name: Linux-musl-amd64
+          path: ./tmp/compiled/linux-musl/amd64
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Linux-musl-aarch64
+          path: ./tmp/compiled/linux-musl/aarch64
+
+      - uses: actions/download-artifact@v4
+        with:
           name: Windows-amd64
           path: ./tmp/compiled/windows/amd64
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Windows-aarch64
+          path: ./tmp/compiled/windows/aarch64
 
       - run: chmod +x gradlew
 

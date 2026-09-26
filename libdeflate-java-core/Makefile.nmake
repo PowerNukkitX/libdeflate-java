@@ -12,7 +12,15 @@ LD = link
 CFLAGS = /nologo /GL /MD /O2 -Isrc\main\c\libdeflate -Isrc\main\c -I"$(JAVA_HOME)\include" -I"$(JAVA_HOME)\include\win32"
 LDFLAGS = /nologo /LTCG
 
-SHARED_LIB = ..\tmp\compiled\windows\amd64\libdeflate_jni.dll
+!IF "$(PNX_ARCH)" == "aarch64"
+SHARED_LIB_DIR = ..\tmp\compiled\windows\aarch64
+CPU_FEATURE_OBJ = src/main/c/libdeflate/lib/arm/cpu_features.obj
+!ELSE
+SHARED_LIB_DIR = ..\tmp\compiled\windows\amd64
+CPU_FEATURE_OBJ = src/main/c/libdeflate/lib/x86/cpu_features.obj
+!ENDIF
+
+SHARED_LIB = $(SHARED_LIB_DIR)\libdeflate_jni.dll
 
 SHARED_LIB_OBJ =			\
 	  src/main/c/libdeflate/lib/adler32.obj		\
@@ -22,7 +30,7 @@ SHARED_LIB_OBJ =			\
 	  src/main/c/libdeflate/lib/gzip_compress.obj		\
 	  src/main/c/libdeflate/lib/gzip_decompress.obj	\
 	  src/main/c/libdeflate/lib/utils.obj			\
-	  src/main/c/libdeflate/lib/x86/cpu_features.obj	\
+	  $(CPU_FEATURE_OBJ)					\
 	  src/main/c/libdeflate/lib/zlib_compress.obj		\
 	  src/main/c/libdeflate/lib/zlib_decompress.obj    \
 	  src/main/c/jni_util.obj	\
@@ -34,10 +42,10 @@ all: directories $(SHARED_LIB)
 
 clean:
 	-del /s /q ..\tmp 2>nul
-	-del src\main\c\*.obj src\main\c\libdeflate\lib\*.obj src\main\c\libdeflate\lib\x86\*.obj
+	-del src\main\c\*.obj src\main\c\libdeflate\lib\*.obj src\main\c\libdeflate\lib\x86\*.obj src\main\c\libdeflate\lib\arm\*.obj
 
 directories:
-	-md ..\tmp\compiled\windows\amd64
+	-md $(SHARED_LIB_DIR)
 
 .c.obj:
 	$(CC) -c /Fo$@ $(CFLAGS) $**

@@ -11,8 +11,9 @@ import java.util.Locale;
 
 public class Libdeflate {
     private static final String OS_SYSTEM_PROPERTY = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+    private static final String RAW_ARCH = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH);
     private static final String OS;
-    private static final String ARCH = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH);
+    private static final String ARCH;
     private static final String NATIVE_LIB_PATH = System.getProperty("libdeflate_jni_path", "");
     private static Throwable unavailabilityCause;
 
@@ -21,9 +22,13 @@ public class Libdeflate {
             OS = "darwin";
         } else if (OS_SYSTEM_PROPERTY.startsWith("win")) {
             OS = "windows";
+        } else if (OS_SYSTEM_PROPERTY.startsWith("linux") && isMusl(RAW_ARCH)) {
+            OS = "linux-musl";
         } else {
             OS = OS_SYSTEM_PROPERTY;
         }
+
+        ARCH = normalizeArchitecture(OS, RAW_ARCH);
 
         String path = NATIVE_LIB_PATH.isEmpty() ? "/" + determineLoadPath() : NATIVE_LIB_PATH;
 
@@ -75,6 +80,24 @@ public class Libdeflate {
 
     private static String determineLoadPath() {
         return OS + "/" + ARCH + "/libdeflate_jni" + determineDylibSuffix();
+    }
+
+    private static boolean isMusl(String arch) {
+        return switch (arch) {
+            case "amd64", "x86_64" -> Files.exists(Paths.get("/lib/ld-musl-x86_64.so.1"));
+            case "aarch64", "arm64" -> Files.exists(Paths.get("/lib/ld-musl-aarch64.so.1"));
+            default -> false;
+        };
+    }
+
+    private static String normalizeArchitecture(String os, String arch) {
+        if (arch.equals("arm64")) {
+            return "aarch64";
+        }
+        if ((os.startsWith("linux") || os.startsWith("windows")) && arch.equals("x86_64")) {
+            return "amd64";
+        }
+        return arch;
     }
 
     private static String determineDylibSuffix() {
